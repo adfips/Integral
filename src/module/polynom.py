@@ -1,9 +1,17 @@
 import itertools
+from collections.abc import Iterable
 
 
 class Polynom:
-    def __init__(self, polynom: list):
-        self.polynom = polynom
+    def __init__(self, *polynom):
+        if len(polynom) == 1:
+            seq = polynom[0]
+            if isinstance(seq, Polynom):
+                self.polynom = seq.polynom[:]
+            elif isinstance(seq, Iterable):
+                self.polynom = list(seq)
+        else:
+            self.polynom = [i + 0 for i in polynom]
         self.roots = []
 
     def __getitem__(self, index):
@@ -122,3 +130,7 @@ class Polynom:
                 self.roots.append(root)
 
 
+poly1 = Polynom(1, 2, 3, 4)
+poly2 = Polynom(1, 0, 0,-1)
+poly2.search_root()
+print(poly2.roots)
