@@ -12,13 +12,20 @@ class Polynom:
                 self.polynom = list(seq)
         else:
             self.polynom = [i + 0 for i in polynom]
-        self.roots = []
+        self.multipliers = []
 
     def __getitem__(self, index):
         return self.polynom[index]
 
     def __setitem__(self, key, value):
         self.polynom[key] = value
+
+    def __eq__(self, val):
+        "Test self==val"
+        if isinstance(val, Polynom):
+            return self.polynom == val.polynom
+        else:
+            return len(self.polynom) == 1 and self.polynom[0] == val
 
     def __str__(self):
         res = []
@@ -64,6 +71,14 @@ class Polynom:
                     res[index1 + index2] += value1 * value2
         return self.__class__(res)
 
+    def __pow__(self, degree):
+        multiplier = Polynom(self[:])
+        res = multiplier
+        if isinstance(degree, int):
+            for i in range(degree - 1):
+                res *= multiplier
+        return self.__class__(res)
+
     def __truediv__(self, divisor):
         """
         Деление многочленов
@@ -85,6 +100,9 @@ class Polynom:
         return quotient, remainder
 
     def trim(self):
+        """
+        убирает страшие нулевые коэффициенты
+        """
         polynom = self.polynom
         if polynom:
             offset = len(polynom) - 1
@@ -93,8 +111,12 @@ class Polynom:
                 while offset >= 0 and polynom[offset] == 0:
                     offset -= 1
                 del polynom[offset + 1:]
+        return self
 
     def search_possible_root(self):
+        """
+        ищет возможные корни многочлена
+        """
         def find_divisors(n):
             n = abs(n)
             divisors = []
@@ -112,25 +134,44 @@ class Polynom:
         return root1 | root2
 
     def search_root(self):
+        """
+        Проверяет возможные корни схемой горнера и возвращает корни, прошедшие проверку
+        """
+        polynom = self.polynom
         roots = []
-        for root in self.search_possible_root():
-            result = self[::-1]
-            for i in range(1, len(self)):
-                result[i] = result[i - 1] * root + result[i]
-            if result[-1] == 0:
-                roots.append(root)
+        while polynom[0] == 0:
+            roots.append(0)
+            polynom = (Polynom(polynom) / Polynom(0, 1))[0]
+        for root in Polynom(polynom).search_possible_root():
+            result = polynom[::-1]
+            while True:
+                for i in range(1, len(result)):
+                    result[i] = result[i - 1] * root + result[i]
+                if result[-1] == 0:
+                    result = result[:-1]
+                    roots.append(root)
+                else:
+                    break
+        return roots
 
     def factorization(self):
+        """
+        расладывает многочлен на множители вида x - <корень>
+        заполняется массив multipliers
+        polynom делится на множетели
+        """
+        while self[0] == 0:
+            self.multipliers.append(Polynom(0, 1))
+            self.polynom = (self / self.multipliers[-1])[0]
         for root in self.search_possible_root():
             result = Polynom(self[::-1])
-            for i in range(1, len(self)):
-                result[i] = result[i - 1] * root + result[i]
-            if result[-1] == 0:
-                self.polynom = (result / Polynom([root, 1]))[0]
-                self.roots.append(root)
+            while True:
+                for i in range(1, len(self)):
+                    result[i] = result[i - 1] * root + result[i]
+                if result[-1] == 0:
+                    self.multipliers.append(Polynom(-root, 1))
+                    result = result[:-1]
+                    self.polynom = result[::-1]
+                else:
+                    break
 
-
-poly1 = Polynom(1, 2, 3, 4)
-poly2 = Polynom(1, 0, 0,-1)
-poly2.search_root()
-print(poly2.roots)
