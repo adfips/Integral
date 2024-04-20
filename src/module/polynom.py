@@ -2,16 +2,30 @@ import itertools
 from collections.abc import Iterable
 
 
+def find_divisors(n):
+    n = abs(n)
+    divisors = []
+    for i in range(1, int(n ** 0.5) + 1):
+        if n % i == 0:
+            divisors.append(i)
+            if i != n // i:
+                divisors.append(n // i)
+    return divisors
+
+
 class Polynom:
-    def __init__(self, *polynom):
-        if len(polynom) == 1:
-            seq = polynom[0]
-            if isinstance(seq, Polynom):
-                self.polynom = seq.polynom[:]
-            elif isinstance(seq, Iterable):
-                self.polynom = list(seq)
+    def __init__(self, *_polynom):
+        self.polynom = []
+        if len(_polynom) == 1:
+            val = _polynom[0]
+            if isinstance(val, Polynom):
+                self.polynom = val.polynom[:]
+            elif isinstance(val, Iterable):
+                self.polynom = list(val)
+            else:
+                self.polynom = [val + 0]
         else:
-            self.polynom = [i + 0 for i in polynom]
+            self.polynom = [i + 0 for i in _polynom]
         self.multipliers = []
 
     def __getitem__(self, index):
@@ -21,7 +35,6 @@ class Polynom:
         self.polynom[key] = value
 
     def __eq__(self, val):
-        "Test self==val"
         if isinstance(val, Polynom):
             return self.polynom == val.polynom
         else:
@@ -61,7 +74,7 @@ class Polynom:
 
     def __mul__(self, polynomial):
         if not isinstance(polynomial, Polynom):
-            return
+            return Polynom([co * polynomial for co in self.polynom])
         poly1 = polynomial.polynom
         poly2 = self.polynom
         res = [0] * (len(poly1) + len(poly2) - 1)
@@ -117,16 +130,6 @@ class Polynom:
         """
         ищет возможные корни многочлена
         """
-        def find_divisors(n):
-            n = abs(n)
-            divisors = []
-            for i in range(1, int(n ** 0.5) + 1):
-                if n % i == 0:
-                    divisors.append(i)
-                    if i != n // i:
-                        divisors.append(n // i)
-            return divisors
-
         div_jun = find_divisors(self[0])
         din_sen = find_divisors(self[-1])
         root1 = set([div1 / div2 for div1, div2 in itertools.product(div_jun, din_sen) if div2 != 0])
@@ -174,4 +177,3 @@ class Polynom:
                     self.polynom = result[::-1]
                 else:
                     break
-

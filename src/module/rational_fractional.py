@@ -1,5 +1,4 @@
 from polynom import Polynom
-from fractions import Fraction
 
 
 class RationalFraction:
@@ -7,10 +6,11 @@ class RationalFraction:
     Класс рациональных дробей, реализующий разложение рац дробей на простешие
     (разложение корректно работает только с 1 и 2 типом простейших дробей)
     """
+
     def __init__(self, divisible: Polynom, divisor: Polynom, _type=0):
         self.divisible = divisible
         self.divisor = divisor
-        self.integer_part = 0
+        self.integer_part = Polynom(0)
         self.type = _type if 1 <= _type <= 4 and isinstance(_type, int) else 0
 
     def right_fraction(self):
@@ -24,7 +24,7 @@ class RationalFraction:
 
     def get_denominators_simplest_fractions(self):
         """
-        Получение списка знаменателей простейших дробей с неизвестными коэффициентами и тип простешей дробт
+        Получение списка знаменателей простейших дробей с неизвестными коэффициентами
         :return: список знаменателей простейших дробей
         """
         # Нужно представить вот в таком виде:
@@ -41,9 +41,9 @@ class RationalFraction:
         """
         Получение списка коэфициентов(многочленов) при неизвестных под общим знаменателем с неизвестными коэффициентами
         """
-        common_denominator = Polynom([1])
+        common_denominator = 1
         for mult in self.divisor.multipliers:
-            common_denominator *= mult
+            common_denominator = mult * common_denominator
         prime_fractions = self.get_denominators_simplest_fractions()
         for index in range(len(prime_fractions)):
             prime_fractions[index] = (common_denominator / prime_fractions[index])[0]
@@ -90,7 +90,7 @@ def gauss_jordan(matrix):
     """
     Решение методом Гаусса-Жордана системы линейных уравнений.
     matrix: двумерный список, расширенную матрицу системы
-    Возвращает: решение системы
+    return: решение системы
     """
     matrix = [row[:] for row in matrix]
     index = list(range(len(matrix)))
@@ -107,12 +107,3 @@ def gauss_jordan(matrix):
                 matrix[j] = [element - coefficient * matrix[i][index] for index, element in enumerate(matrix[j])]
 
     return [(row[cols - 1], ind) for row, ind in zip(matrix, index)]
-
-
-a = RationalFraction(
-    Polynom(1, 2),
-    Polynom(0, 0, 0, 234, 309, 164, 50, 10, 1)
-)
-
-for k in a.get_simplest_fractions():
-    print(Fraction(float(k.divisible)).limit_denominator(1000), k.divisor, k.type)
