@@ -74,6 +74,9 @@ class RationalFraction:
         разложение рациональной дроби в сумму простеших дробей
         :return: список простеших дробей
         """
+        print(self.divisible)
+        if len(self.divisible) == 0:
+            return []
         poly_b = self.divisible
         self.divisor.factorization()
         poly_a = self.get_numerator_under_common_fraction()
