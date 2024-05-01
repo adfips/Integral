@@ -12,7 +12,7 @@ class Integral:
                 for i in range(len(simpl_frac) - 1, -1, -1):
                     self.integral += Rational(simpl_frac[i] / (i + 1)).limit_denominator(100) * x ** (i + 1)
                 return
-        multiplier = simpl_frac.divisor.multipliers
+        multiplier = simpl_frac.divisor.factorization()
         coef = Rational(simpl_frac.divisible).limit_denominator(1000)
 
         match simpl_frac.type:

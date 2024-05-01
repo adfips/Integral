@@ -2,47 +2,35 @@ import itertools
 from collections.abc import Iterable
 
 
-def find_divisors(n):
-    n = abs(n)
-    divisors = []
-    for i in range(1, int(n ** 0.5) + 1):
-        if n % i == 0:
-            divisors.append(i)
-            if i != n // i:
-                divisors.append(n // i)
-    return divisors
-
-
 class Polynom:
-    def __init__(self, *_polynom):
-        self.polynom = []
-        if len(_polynom) == 1:
-            val = _polynom[0]
+    def __init__(self, *args):
+        if len(args) == 1:
+            val = args[0]
             if isinstance(val, Polynom):
-                self.polynom = val.polynom[:]
+                polynom = val[:]
             elif isinstance(val, Iterable):
-                self.polynom = list(val)
+                polynom = list(val)
             else:
-                self.polynom = [val + 0]
+                polynom = [val + 0]
         else:
-            self.polynom = [i + 0 for i in _polynom]
-        self.multipliers = []
+            polynom = list(args)
+        self._polynom = polynom
 
     def __getitem__(self, index):
-        return self.polynom[index]
+        return self._polynom[index]
 
     def __setitem__(self, key, value):
-        self.polynom[key] = value
+        self._polynom[key] = value
 
     def __eq__(self, val):
         if isinstance(val, Polynom):
-            return self.polynom == val.polynom
+            return self._polynom == val._polynom
         else:
-            return len(self.polynom) == 1 and self.polynom[0] == val
+            return len(self._polynom) == 1 and self._polynom[0] == val
 
     def __str__(self):
         res = []
-        for index, coef in enumerate(self.polynom):
+        for index, coef in enumerate(self._polynom):
             if coef != 0:
                 if index == 0:
                     index = ''
@@ -58,25 +46,25 @@ class Polynom:
             return "0"
 
     def __len__(self):
-        return len(self.polynom)
+        return len(self._polynom)
 
     def __add__(self, polynomial):
         if not isinstance(polynomial, Polynom):
             return
-        res = [a + b for a, b in itertools.zip_longest(self.polynom, polynomial.polynom, fillvalue=0)]
+        res = [a + b for a, b in itertools.zip_longest(self._polynom, polynomial._polynom, fillvalue=0)]
         return self.__class__(res)
 
     def __sub__(self, val):
         return self.__add__(-val)
 
     def __neg__(self):
-        return self.__class__([-co for co in self.polynom])
+        return self.__class__([-co for co in self._polynom])
 
     def __mul__(self, polynomial):
         if not isinstance(polynomial, Polynom):
-            return Polynom([co * polynomial for co in self.polynom])
-        poly1 = polynomial.polynom
-        poly2 = self.polynom
+            return Polynom([co * polynomial for co in self._polynom])
+        poly1 = polynomial._polynom
+        poly2 = self._polynom[:]
         res = [0] * (len(poly1) + len(poly2) - 1)
         for index1, value1 in enumerate(poly1):
             for index2, value2 in enumerate(poly2):
@@ -100,23 +88,32 @@ class Polynom:
         if not isinstance(divisor, Polynom):
             return None
         quotient = Polynom([0] * len(self))
-        remainder = self
+        remainder = Polynom(self[:])
         while len(remainder) >= len(divisor):
             div_degree = len(remainder) - len(divisor)
-            div_coef = remainder.polynom[-1] / divisor.polynom[-1]
+            div_coef = int(remainder._polynom[-1]) / int(divisor._polynom[-1])
             quotient[div_degree] = div_coef
             monomial = Polynom([0] * (div_degree + 1))
             monomial[-1] = div_coef
-            remainder = remainder - divisor * monomial
-            remainder.trim()
-        quotient.trim()
-        return quotient, remainder
+            remainder = (remainder - divisor * monomial).trim()
+        return quotient.trim(), remainder
+
+    @staticmethod
+    def find_divisors(n):
+        n = abs(n)
+        divisors = []
+        for i in range(1, int(n ** 0.5) + 1):
+            if n % i == 0:
+                divisors.append(i)
+                if i != n // i:
+                    divisors.append(n // i)
+        return divisors
 
     def trim(self):
         """
         убирает страшие нулевые коэффициенты
         """
-        polynom = self.polynom
+        polynom = self._polynom[:]
         if polynom:
             offset = len(polynom) - 1
             if polynom[offset] == 0:
@@ -124,14 +121,14 @@ class Polynom:
                 while offset >= 0 and polynom[offset] == 0:
                     offset -= 1
                 del polynom[offset + 1:]
-        return self
+        return Polynom(polynom)
 
     def search_possible_root(self):
         """
         ищет возможные корни многочлена
         """
-        div_jun = find_divisors(self[0])
-        din_sen = find_divisors(self[-1])
+        div_jun = self.find_divisors(self[0])
+        din_sen = self.find_divisors(self[-1])
         root1 = set([div1 / div2 for div1, div2 in itertools.product(div_jun, din_sen) if div2 != 0])
         root2 = {-elem for elem in root1}
         return root1 | root2
@@ -140,7 +137,7 @@ class Polynom:
         """
         Проверяет возможные корни схемой горнера и возвращает корни, прошедшие проверку
         """
-        polynom = self.polynom
+        polynom = self._polynom[:]
         roots = []
         while polynom[0] == 0:
             roots.append(0)
@@ -163,17 +160,20 @@ class Polynom:
         заполняется массив multipliers
         polynom делится на множетели
         """
+        polynom = Polynom(self[:])
+        multipliers = []
         while self[0] == 0:
-            self.multipliers.append(Polynom(0, 1))
-            self.polynom = (self / self.multipliers[-1])[0]
+            multipliers.append(Polynom(0, 1))
+            polynom = (self / multipliers[-1])[0]
         for root in self.search_possible_root():
-            result = Polynom(self[::-1])
+            result = polynom
             while True:
                 for i in range(1, len(self)):
                     result[i] = result[i - 1] * root + result[i]
                 if result[-1] == 0:
-                    self.multipliers.append(Polynom(-root, 1))
+                    multipliers.append(Polynom(-root, 1))
                     result = result[:-1]
-                    self.polynom = result[::-1]
+                    polynom = result[::-1]
                 else:
                     break
+        return multipliers

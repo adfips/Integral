@@ -14,6 +14,5 @@ a.right_fraction()
 print(a.integer_part)
 rez = Integral(a.integer_part).integral
 for k in a.get_simplest_fractions():
-    k.divisor.factorization()
     rez += Integral(k).integral
 print(rez)

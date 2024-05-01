@@ -9,7 +9,7 @@ class ParsingTest(unittest.TestCase):
     def test_just_fraction(self):
         example = '2x + 1 -1'
         exc = [0, 2]
-        self.assertEqual(exc, ps(example))
+        self.assertEqual((exc, [1]), ps(example))
 
     def test_default_fraction(self):
         example = '2x + 1 - 1 /2x + 1 - 1'
