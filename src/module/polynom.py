@@ -17,7 +17,7 @@ class Polynom:
         self._polynom = polynom
 
     def __getitem__(self, index):
-        return self._polynom[index]
+        return self._polynom[index] if self._polynom else 0
 
     def __setitem__(self, key, value):
         self._polynom[key] = value
@@ -160,15 +160,17 @@ class Polynom:
         заполняется массив multipliers
         polynom делится на множетели
         """
+        if len(self) <= 1:
+            return [self]
         polynom = Polynom(self[:])
         multipliers = []
-        while self[0] == 0:
+        while polynom[0] == 0:
             multipliers.append(Polynom(0, 1))
-            polynom = (self / multipliers[-1])[0]
-        for root in self.search_possible_root():
+            polynom = (polynom / multipliers[-1])[0]
+        for root in polynom.search_root():
             result = polynom
             while True:
-                for i in range(1, len(self)):
+                for i in range(1, len(polynom)):
                     result[i] = result[i - 1] * root + result[i]
                 if result[-1] == 0:
                     multipliers.append(Polynom(-root, 1))

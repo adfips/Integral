@@ -11,9 +11,9 @@ class Integral:
             if simpl_frac != 0:
                 for i in range(len(simpl_frac) - 1, -1, -1):
                     self.integral += Rational(simpl_frac[i] / (i + 1)).limit_denominator(100) * x ** (i + 1)
-                return
+            return
         multiplier = simpl_frac.divisor.factorization()
-        coef = Rational(simpl_frac.divisible).limit_denominator(1000)
+        coef = simpl_frac.divisible
 
         match simpl_frac.type:
             case 1:

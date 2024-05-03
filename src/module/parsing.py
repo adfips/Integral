@@ -20,15 +20,18 @@ def parse_expression(expression):
     """функцияя которая приводит выражение к списку где на на i - ом месте i - ая степень"""
     coefficients = {}
 
-    terms = re.findall(r'([-]?\d*)\s*x\^?(\d*)|([-]?\d+)', expression)
+    terms = re.findall(r'(-?\d*)\s*x\^?(\d*)|(-?\d+)', expression)
 
     for term in terms:
         if term[0] != '' or term[1] != '':
-            coefficient = int(term[0]) if term[0] else 1
+            if term[0] == '-':
+                coefficient = -1
+            else:
+                coefficient = int(term[0]) if term[0] else 1
             power = int(term[1]) if term[1] else 1
         else:
-            coefficient = int(term[2])
-            power = 0
+            coefficient = int(term[2]) if term[2] else 1
+            power = 0 if term[2] else 1
         if power in coefficients:
             coefficients[power] += coefficient
         else:

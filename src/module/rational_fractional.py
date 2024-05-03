@@ -1,4 +1,4 @@
-from polynom import Polynom
+from src.module.polynom import Polynom
 
 
 class RationalFraction:
@@ -10,7 +10,7 @@ class RationalFraction:
     def __init__(self, divisible: Polynom, divisor: Polynom, _type=0):
         self.divisible = divisible
         self.divisor = divisor
-        self.integer_part = Polynom(0)
+        self.integer_part = 0
         self.type = _type if 1 <= _type <= 4 and isinstance(_type, int) else 0
 
     def right_fraction(self):
@@ -21,6 +21,8 @@ class RationalFraction:
             div_polynom = self.divisible / self.divisor
             self.integer_part = div_polynom[0]
             self.divisible = div_polynom[1]
+        else:
+            self.integer_part = Polynom(0)
 
     def get_denominators_simplest_fractions(self):
         """
@@ -42,12 +44,37 @@ class RationalFraction:
         Получение списка коэфициентов(многочленов) при неизвестных под общим знаменателем с неизвестными коэффициентами
         """
         common_denominator = 1
-        for mult in self.divisor.factorization():
+        list_denominators = self.divisor.factorization()
+        if len(self.divisor) != len(list_denominators) + 1:
+            raise Exception("многочлен содежрит рациональные или действительные корни")
+        for mult in list_denominators:
             common_denominator = mult * common_denominator
         prime_fractions = self.get_denominators_simplest_fractions()
         for index in range(len(prime_fractions)):
             prime_fractions[index] = (common_denominator / prime_fractions[index])[0]
         return prime_fractions
+
+    def get_simplest_fractions(self):
+        """
+        разложение рациональной дроби в сумму простеших дробей
+        :return: список простеших дробей
+        """
+        if len(self.divisible) == 1:
+            self.type = 1
+            return [self]
+        if len(self.divisible) == 0:
+            return []
+        poly_b = self.divisible
+        poly_a = self.get_numerator_under_common_fraction()
+
+        matrix = self.get_system_linear_equations(poly_a, poly_b)
+        coefficients = self.gauss_jordan(matrix)
+        simplest_fractions = []
+        for (coef, index), divisor in zip(coefficients, self.get_denominators_simplest_fractions()):
+            if coef == 0:
+                continue
+            simplest_fractions.append(RationalFraction(coef, divisor, 1 if len(divisor) == 2 else 2))
+        return simplest_fractions
 
     @staticmethod
     def get_system_linear_equations(polynom_a, polynom_b):
@@ -70,24 +97,6 @@ class RationalFraction:
             linear_equation.clear()
         return system_linear_equations
 
-    def get_simplest_fractions(self):
-        """
-        разложение рациональной дроби в сумму простеших дробей
-        :return: список простеших дробей
-        """
-        print(self.divisible)
-        if len(self.divisible) == 0:
-            return []
-        poly_b = self.divisible
-        poly_a = self.get_numerator_under_common_fraction()
-
-        matrix = self.get_system_linear_equations(poly_a, poly_b)
-        coefficients = self.gauss_jordan(matrix)
-        simplest_fractions = []
-        for (coef, index), divisor in zip(coefficients, self.get_denominators_simplest_fractions()):
-            simplest_fractions.append(RationalFraction(coef, divisor, 1 if len(divisor) == 2 else 2))
-        return simplest_fractions
-
     @staticmethod
     def gauss_jordan(matrix):
         """
@@ -95,6 +104,8 @@ class RationalFraction:
         matrix: двумерный список, расширенную матрицу системы
         return: решение системы
         """
+        if not matrix:
+            return []
         matrix = [row[:] for row in matrix]
         index = list(range(len(matrix)))
         rows, cols = len(matrix), len(matrix[0])

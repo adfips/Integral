@@ -1,18 +1,30 @@
 from src.module.integral import Integral
 from src.module.parsing import parsing
 from src.module.polynom import Polynom
-from src.module.rational_fractional import RationalFraction
+from rational_fractional import RationalFraction
 
-input_str = "(234x^3+309x^4+164x^5+50x^6+10x^7+x^8)"
-frac = parsing(input_str)
-print(frac[0], frac[1])
-a = RationalFraction(
-    Polynom(frac[0]),
-    Polynom(frac[1])
-)
-a.right_fraction()
-print(a.integer_part)
-rez = Integral(a.integer_part).integral
-for k in a.get_simplest_fractions():
-    rez += Integral(k).integral
-print(rez)
+
+def main():
+    input_str = "(1-x-3x^2++1x^3)/(x^2-1)"
+    frac = parsing(input_str)
+    a = RationalFraction(
+        Polynom(frac[0]),
+        Polynom(frac[1])
+    )
+    print(a.divisible)
+    print(a.divisor)
+    a.right_fraction()
+    print(a.integer_part)
+    print(a.divisible)
+    print(a.divisor)
+    rez = str(Integral(a.integer_part).integral)
+    print(rez)
+    q = a.get_simplest_fractions()
+    for k in a.get_simplest_fractions():
+        b = Integral(k).integral
+        rez = rez + str(Integral(k).integral)
+    print(rez)
+
+
+if __name__ == '__main__':
+    main()
