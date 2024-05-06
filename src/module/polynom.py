@@ -31,6 +31,7 @@ class Polynom:
     def __str__(self):
         res = []
         for index, coef in enumerate(self._polynom):
+            coef = coef if coef != 1 else ''
             if coef != 0:
                 if index == 0:
                     index = ''
@@ -97,6 +98,12 @@ class Polynom:
             monomial[-1] = div_coef
             remainder = (remainder - divisor * monomial).trim()
         return quotient.trim(), remainder
+
+    def function_value(self, x):
+        rez = 0
+        for i in range(len(self._polynom)):
+            rez += self._polynom[i] * x ** i
+        return rez
 
     @staticmethod
     def find_divisors(n):
@@ -168,14 +175,10 @@ class Polynom:
             multipliers.append(Polynom(0, 1))
             polynom = (polynom / multipliers[-1])[0]
         for root in polynom.search_root():
-            result = polynom
             while True:
-                for i in range(1, len(polynom)):
-                    result[i] = result[i - 1] * root + result[i]
-                if result[-1] == 0:
+                if polynom.function_value(root) == 0:
                     multipliers.append(Polynom(-root, 1))
-                    result = result[:-1]
-                    polynom = result[::-1]
+                    polynom = (polynom/multipliers[-1])[0]
                 else:
                     break
         return multipliers
