@@ -5,15 +5,13 @@ from rational_fractional import RationalFraction
 
 
 def main():
-    input_str = "(1+x-3x^2+1x^3)/(x^3+3x^2+3x+1)"
+    input_str = "(1+1x-7*x^4+1x^3)/(x^3+3x^2+3x+1)"
     frac = parsing(input_str)
     a = RationalFraction(
         Polynom(frac[0]),
         Polynom(frac[1])
     )
-    a.right_fraction()
-    print(antiderivative(a))
-    print(definite_integral(a, 1, 0))
+    print(calculate(a, "indefinite"))
 
 
 if __name__ == '__main__':

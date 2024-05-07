@@ -36,9 +36,9 @@ class Polynom:
                 if index == 0:
                     index = ''
                 elif index == 1:
-                    index = 'X'
+                    index = 'x'
                 else:
-                    index = 'X^' + str(index)
+                    index = 'x^' + str(index)
                 res.append(str(coef) + index)
         if res:
             res.reverse()
@@ -84,7 +84,8 @@ class Polynom:
     def __truediv__(self, divisor):
         """
         Деление многочленов
-        :return целая часть, остаток
+        возращается (целая часть, остаток)
+        :return (Polynom, Polynom)
         """
         if not isinstance(divisor, Polynom):
             return None
@@ -100,6 +101,10 @@ class Polynom:
         return quotient.trim(), remainder
 
     def function_value(self, x):
+        """
+        значение функции
+        возвращает числовое значение
+        """
         rez = 0
         for i in range(len(self._polynom)):
             rez += self._polynom[i] * x ** i
@@ -118,7 +123,8 @@ class Polynom:
 
     def trim(self):
         """
-        убирает страшие нулевые коэффициенты
+        убирает старшие нулевые коэффициенты
+        :return Polynom
         """
         polynom = self._polynom[:]
         if polynom:
@@ -133,6 +139,7 @@ class Polynom:
     def search_possible_root(self):
         """
         ищет возможные корни многочлена
+        :return set
         """
         div_jun = self.find_divisors(self[0])
         din_sen = self.find_divisors(self[-1])
@@ -143,6 +150,7 @@ class Polynom:
     def search_root(self):
         """
         Проверяет возможные корни схемой горнера и возвращает корни, прошедшие проверку
+        return list
         """
         polynom = self._polynom[:]
         roots = []
@@ -163,9 +171,8 @@ class Polynom:
 
     def factorization(self):
         """
-        расладывает многочлен на множители вида x - <корень>
-        заполняется массив multipliers
-        polynom делится на множетели
+        вызвращает многочлен разложенный на множители вида x - <корень>
+        :return [Polynom,]
         """
         if len(self) <= 1:
             return [self]

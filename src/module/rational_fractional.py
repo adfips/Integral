@@ -29,8 +29,6 @@ class RationalFraction:
         Получение списка знаменателей простейших дробей с неизвестными коэффициентами
         :return: список знаменателей простейших дробей
         """
-        # Нужно представить вот в таком виде:
-        # A/x,B/(x-1),C/(x-1)^2,(Dx+E)/(x^2+x+1) и найти А,B,C,
         prime_fractions = []  # x,(x-1),(x-1)^2,(x^2+x+1)
         for mult in self.divisor.factorization():
             if mult in prime_fractions:
