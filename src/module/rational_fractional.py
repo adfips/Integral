@@ -41,10 +41,12 @@ class RationalFraction:
         """
         Получение списка коэфициентов(многочленов) при неизвестных под общим знаменателем с неизвестными коэффициентами
         """
+
         common_denominator = 1
         list_denominators = self.divisor.factorization()
         if len(self.divisor) != len(list_denominators) + 1:
-            raise Exception("многочлен содежрит рациональные или действительные корни")
+            print("многочлен содежрит рациональные или действительные корни")
+            quit()
         for mult in list_denominators:
             common_denominator = mult * common_denominator
         prime_fractions = self.get_denominators_simplest_fractions()
@@ -57,11 +59,17 @@ class RationalFraction:
         разложение рациональной дроби в сумму простеших дробей
         :return: список простеших дробей
         """
-        if len(self.divisible) == 1:
-            self.type = 1
-            return [self]
         if len(self.divisible) == 0:
             return []
+        if len(self.divisible) == 1:
+            count = 0
+            for i in self.divisor:
+                if i != 0:
+                    count += 1
+            if count == 1:
+                self.type = 1 if len(self.divisor) == 2 else 2
+                return [self]
+
         poly_b = self.divisible
         poly_a = self.get_numerator_under_common_fraction()
 
@@ -71,7 +79,7 @@ class RationalFraction:
         for (coef, index), divisor in zip(coefficients, self.get_denominators_simplest_fractions()):
             if coef == 0:
                 continue
-            simplest_fractions.append(RationalFraction(coef, divisor, 1 if len(divisor) == 2 else 2))
+            simplest_fractions.append(RationalFraction(Polynom(coef), divisor, 1 if len(divisor) == 2 else 2))
         return simplest_fractions
 
     @staticmethod

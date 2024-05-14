@@ -1,4 +1,4 @@
-from sympy import *
+import math
 
 from src.module.polynom import Polynom
 from src.module.rational_fractional import RationalFraction
@@ -22,16 +22,16 @@ def integrating_polynomial(simpl_frac: Polynom):
 def integration_simplest_fractions(simpl_frac: RationalFraction):
     """
     интеграл от простейшей дроби
-    Возвращает кортеж из корня степени и коэффициента
+    Возвращает кортеж из коэфициента корня, корня, степени и коэффициентa дроби
     :return tuple
     """
     multiplier = simpl_frac.divisor.factorization()
-    coef = simpl_frac.divisible
+    coef = simpl_frac.divisible[0]
     match simpl_frac.type:
         case 1:
-            return -multiplier[0][0], '', coef
+            return -multiplier[0][0], '', coef/multiplier[0][1]
         case 2:
-            return -multiplier[0][0], len(multiplier) - 1, coef / (1 - len(multiplier))
+            return -multiplier[0][0], len(multiplier) - 1, coef / ((1 - len(multiplier))*multiplier[0][1])
 
 
 def integral_rational_frac(rational_fraction):
@@ -59,9 +59,10 @@ def function_value_integral_rational_frac(integral_rat_frac: dict, x):
     rez = 0
     for (root, degree), coef in integral_rat_frac.items():
         if x - root == 0:
-            raise Exception(f"Вы ввели функцию которая терпит бесконечный разрыв в точке {root}")
+            print(f"Вы ввели функцию которая терпит бесконечный разрыв в точке {root}")
+            quit()
         if not degree:
-            rez += coef * ln(abs(x - root))
+            rez += coef * math.log(abs(x - root), math.e)
         else:
             rez += coef / (x - root) ** degree
     return rez
@@ -73,19 +74,20 @@ def str_integral_simples_frac(integral_rat_frac: dict):
     """
     rez = ""
     for (root, degree), coef in integral_rat_frac.items():
-        coef = coef if coef != 1 else ''
-        sign1 = '+' if coef > 0 else ''
+        if coef == 1:
+            sign1 = '+'
+        else:
+            sign1 = '+' if coef > 0 else ''
         sign2 = '+' if -root > 0 else ''
         root = int(root) if root == int(root) else root
-        root = root if root != 0 else ''
-        coef = int(coef) if coef == int(coef) else coef
+        root = -root if root != 0 else ''
         if degree == '':
-            rez += f"{sign1}{coef}ln(|x{sign2}{-root}|)"
+            rez += f"{sign1}{coef}ln(|x{sign2}{root}|)"
         else:
             if degree == 1:
-                rez += f"{sign1}{coef}/(x{sign2}{-root})"
+                rez += f"{sign1}{coef}/(x{sign2}{root})"
             else:
-                rez += f"{sign1}{coef}/(x{sign2}{-root})^{degree}"
+                rez += f"{sign1}{coef}/(x{sign2}{root})^{degree}"
     return rez
 
 
@@ -116,7 +118,7 @@ def definite_integral(rational_frac, upper_limit, lower_limit):
 
 def calculate(rational_frac, mode):
     rational_frac.right_fraction()
-    if mode == "indefinite":
+    if mode == "-indef":
         return indefinite(rational_frac)
-    elif mode == "definite":
+    elif mode == "-def":
         return indefinite(rational_frac)

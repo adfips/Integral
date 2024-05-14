@@ -50,8 +50,8 @@ class MyTestCase(unittest.TestCase):
     def test__str__(self):
         poly1 = Polynom([1, 2, 3, 4])
         poly2 = Polynom([1, 0, 1, 0, -0, --1])
-        self.assertEqual(str(poly1), "4X^3 + 3X^2 + 2X + 1")
-        self.assertEqual(str(poly2), "1X^5 + 1X^2 + 1")
+        self.assertEqual(str(poly1), "4x^3 + 3x^2 + 2x + 1")
+        self.assertEqual(str(poly2), "1x^5 + 1x^2 + 1")
 
     def test__len__(self):
         self.assertEqual(len(Polynom(1, 2, 3, 4)), 4)

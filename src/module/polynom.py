@@ -31,7 +31,6 @@ class Polynom:
     def __str__(self):
         res = []
         for index, coef in enumerate(self._polynom):
-            coef = coef if coef != 1 else ''
             if coef != 0:
                 if index == 0:
                     index = ''
@@ -93,7 +92,7 @@ class Polynom:
         remainder = Polynom(self[:])
         while len(remainder) >= len(divisor):
             div_degree = len(remainder) - len(divisor)
-            div_coef = int(remainder._polynom[-1]) / int(divisor._polynom[-1])
+            div_coef = remainder._polynom[-1] / divisor._polynom[-1]
             quotient[div_degree] = div_coef
             monomial = Polynom([0] * (div_degree + 1))
             monomial[-1] = div_coef
@@ -174,7 +173,7 @@ class Polynom:
         вызвращает многочлен разложенный на множители вида x - <корень>
         :return [Polynom,]
         """
-        if len(self) <= 1:
+        if len(self) <= 2:
             return [self]
         polynom = Polynom(self[:])
         multipliers = []
@@ -188,4 +187,5 @@ class Polynom:
                     polynom = (polynom/multipliers[-1])[0]
                 else:
                     break
+        multipliers[-1] = multipliers[-1]*polynom
         return multipliers

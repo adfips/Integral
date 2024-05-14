@@ -12,9 +12,10 @@ def parsing(in_str):
         return numerator, denumerator
     elif len(parth) > 2:
         s = "".join([" " * len(i) + '^' for i in parth[:-1]])
-        raise Exception(f'{in_str}\n{" " * 11 + s}\n'
-                        'Вы указали {len(parth) - 1} знака разделить.'
+        print(f'{in_str}\n{" " * 11 + s}\n'
+                        f'Вы указали {len(parth) - 1} знака разделить.'
                         ' Вы должны ввести рациональную дробь с целыми коэфициентами')
+        quit(0)
     else:
         numerator_str = parth[0].strip().replace(' ', '')
         numerator = parse_expression(numerator_str)
@@ -58,32 +59,37 @@ def check_exception(expression):
             find = expression.find(i)
             s = s[:find] + "^" * len(i) + s[find:]
             s = f'{expression}\n{" " * 11 + s}\n'
-        raise Exception(s + "за место этих выражений нужно написать их значение: " + f", ".join(exception1))
-
+        print(s + "за место этих выражений нужно написать их значение: " + f", ".join(exception1))
+        quit(0)
     if expression[0] == '(':
         if expression[-1] != ')':
             s = f'{expression}\n{" " * (11 + len(expression))}^\n'
-            raise Exception(s + "Вы не закрыли скобку")
+            print(s + "Вы не закрыли скобку")
+            quit(0)
     else:
         if expression[-1] == ')':
             s = f'{expression}\n{" " * 10}^\n'
-            raise Exception(s + "Вы не открыли скобку")
+            print(s + "Вы не открыли скобку")
+            quit(0)
 
     expression = expression[1:-1]
     if expression.count('(') > 0 or expression.count(')') > 0:
         s = "^".join([" " * len(i) for i in re.split(r'[()]', expression)])
         s = f'{expression}\n{" " * 11 + s}\n'
-        raise Exception(s + "Вычислите выражение в скобках")
+        print(s + "Вычислите выражение в скобках")
+        quit(0)
 
     exception2 = re.split(r'[0-9x]', expression)
     for i in exception2:
         if len(i) > 1 or i not in "+-*^":
             s = " " * expression.find(i) + "^" * len(i)
             s = f'{expression}\n{" " * 11 + s}\n'
-            raise Exception(s + "некорректный ввод")
+            print(s + "некорректный ввод")
+            quit(0)
 
     exception3 = re.split(r'x+(?:\*x+)+|x{2,}', expression)
     if len(exception3) != 1:
         s = "^^".join([" " * len(i) for i in exception3])
         s = f'{expression}\n{" " * 11 + s}\n'
-        raise Exception(s + "некорректный ввод")
+        print(s + "некорректный ввод")
+        quit(0)
